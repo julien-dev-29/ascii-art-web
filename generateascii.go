@@ -17,7 +17,7 @@ func GenerateAscii(input string, banner string) string {
 	lines := strings.Split(string(data), "\n")
 	var result strings.Builder
 
-	for i := 0; i < 8; i++ {
+	for i := range 8 {
 		for _, c := range input {
 			if c < ' ' || c > '~' {
 				continue
