@@ -10,13 +10,10 @@ var tmpl = template.Must(template.ParseFiles("templates/index.html"))
 
 func main() {
 	mux := http.NewServeMux()
-
 	mux.HandleFunc("/", handleHome)
 	mux.HandleFunc("/ascii-art", handleAscii)
-
 	fs := http.FileServer(http.Dir("static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
-
 	fmt.Println("http://localhost:8000")
 	http.ListenAndServe(":8000", mux)
 }
@@ -37,16 +34,12 @@ func handleAscii(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
-
 	text := r.FormValue("text")
 	banner := r.FormValue("banner")
-
 	result := GenerateAscii(text, banner)
-
 	data := map[string]string{
 		"Title":  "Ascii Art",
 		"Result": result,
 	}
-
 	tmpl.Execute(w, data)
 }
