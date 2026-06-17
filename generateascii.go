@@ -1,34 +1,40 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strings"
 )
 
-func GenerateAscii(input string, banner string) string {
+func GenerateAscii(input string, banner string) (string, error) {
 	file := "banners/" + banner + ".txt"
 
 	data, err := os.ReadFile(file)
 	if err != nil {
-		return "Error loading banner"
+		return "", err
 	}
 
-	lines := strings.Split(string(data), "\n")
+	content := string(data)
+	content = strings.ReplaceAll(content, "\r\n", "\n")
+	lines := strings.Split(content, "\n")
+
 	var result strings.Builder
 
-	for i := range 8 {
-		for _, c := range input {
-			if c < ' ' || c > '~' {
-				continue
-			}
-			index := int(c - ' ')
-			start := index * 9
-			result.WriteString(lines[start+i])
+	words := strings.Split(input, "\n")
+	for wi, word := range words {
+		if wi > 0 {
+			result.WriteString("\n")
 		}
-		result.WriteString("\n")
+		for i := range 8 {
+			for _, c := range word {
+				if c < ' ' || c > '~' {
+					continue
+				}
+				index := int(c-' ') * 9
+				result.WriteString(lines[index+i])
+			}
+			result.WriteString("\n")
+		}
 	}
 
-	fmt.Println(result.String())
-	return result.String()
+	return result.String(), nil
 }
