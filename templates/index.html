@@ -12,28 +12,86 @@
 <body>
     <div class="container">
         <h1>{{ .Title }}</h1>
-        <form method="post" action="/ascii-art">
+
+        <form method="post" action="/ascii-art" id="ascii-form">
             <label for="text">Text</label>
-            <textarea name="text" id="text" placeholder="Enter your text here..."></textarea>
+            <textarea name="text" id="text" placeholder="Enter your text here...">{{ .Text }}</textarea>
+            <span class="char-count" id="char-count">0 characters</span>
 
             <div class="radio-group">
-                <label><input type="radio" name="banner" value="standard" checked> Standard</label>
-                <label><input type="radio" name="banner" value="shadow"> Shadow</label>
-                <label><input type="radio" name="banner" value="thinkertoy"> Thinkertoy</label>
+                <label><input type="radio" name="banner" value="standard" {{ if or (eq .Banner "") (eq .Banner "standard") }}checked{{ end }}> Standard</label>
+                <label><input type="radio" name="banner" value="shadow" {{ if eq .Banner "shadow" }}checked{{ end }}> Shadow</label>
+                <label><input type="radio" name="banner" value="thinkertoy" {{ if eq .Banner "thinkertoy" }}checked{{ end }}> Thinkertoy</label>
             </div>
 
-            <button type="submit">Generate</button>
+            <button type="submit" id="generate-btn">Generate</button>
         </form>
 
+        <div id="loading" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>Generating ASCII art...</p>
+        </div>
+
         {{ if .Result }}
-        <div class="result-label">Result:</div>
-        <pre>{{ .Result }}</pre>
-        <form method="post" action="/download" class="download-form">
-            <input type="hidden" name="text" value="{{ .Text }}">
-            <input type="hidden" name="banner" value="{{ .Banner }}">
-            <button type="submit" class="btn-download">Download as .txt</button>
-        </form>
+        <div class="result-section">
+            <div class="result-header">
+                <span class="result-label">Result</span>
+                <span class="banner-label">{{ .Banner }}</span>
+            </div>
+            <pre id="result-block">{{ .Result }}</pre>
+            <div class="result-actions">
+                <button class="btn-copy" id="copy-btn" onclick="copyResult()">Copy</button>
+                <form method="post" action="/download" class="download-form">
+                    <input type="hidden" name="text" value="{{ .Text }}">
+                    <input type="hidden" name="banner" value="{{ .Banner }}">
+                    <button type="submit" class="btn-download">Download as .txt</button>
+                </form>
+            </div>
+        </div>
         {{ end }}
     </div>
+
+    <footer>
+        <p>ASCII Art Web</p>
+    </footer>
+
+    <script>
+        function updateCharCount() {
+            var textarea = document.getElementById('text');
+            var count = document.getElementById('char-count');
+            var len = textarea.value.length;
+            count.textContent = len + ' character' + (len !== 1 ? 's' : '');
+            count.className = 'char-count';
+            if (len > 2000) {
+                count.classList.add('exceeded');
+            } else if (len > 1000) {
+                count.classList.add('warning');
+            }
+        }
+
+        document.getElementById('ascii-form').addEventListener('submit', function () {
+            document.getElementById('loading').classList.add('active');
+        });
+
+        function copyResult() {
+            var result = document.getElementById('result-block').textContent;
+            var btn = document.getElementById('copy-btn');
+            navigator.clipboard.writeText(result).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(function () {
+                btn.textContent = 'Failed';
+                setTimeout(function () {
+                    btn.textContent = 'Copy';
+                }, 2000);
+            });
+        }
+
+        updateCharCount();
+    </script>
 </body>
 </html>

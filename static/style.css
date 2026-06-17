@@ -6,13 +6,26 @@
 
 body {
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    background-color: #0a0a0f;
+    background: linear-gradient(-45deg, #0a0a0f, #0d0d1a, #0a0a0f, #0f0f1a);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
     color: #e2e8f0;
     line-height: 1.6;
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+::selection {
+    background-color: rgba(124, 92, 252, 0.3);
+    color: #fff;
+}
+
+:focus-visible {
+    outline: 2px solid #7c5cfc;
+    outline-offset: 2px;
 }
 
 .container {
@@ -20,10 +33,11 @@ body {
     max-width: 820px;
     margin: 2rem 1rem;
     padding: 2.5rem;
-    background: linear-gradient(135deg, #13131f 0%, #1a1a2e 100%);
+    background: linear-gradient(135deg, rgba(19, 19, 31, 0.95), rgba(26, 26, 46, 0.95));
     border: 1px solid #2d2d44;
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 80px rgba(124, 92, 252, 0.03);
+    backdrop-filter: blur(10px);
 }
 
 h1 {
@@ -99,6 +113,11 @@ textarea::placeholder {
     user-select: none;
 }
 
+.radio-group label:hover {
+    background-color: rgba(124, 92, 252, 0.08);
+    color: #cbd5e1;
+}
+
 .radio-group label:has(input:checked) {
     background-color: #7c5cfc;
     color: #fff;
@@ -133,14 +152,13 @@ button:active {
     transform: scale(0.98);
 }
 
-.download-form {
-    margin-top: 1rem;
-}
-
 .btn-download {
     background: transparent;
     border: 1px solid #7c5cfc;
     color: #7c5cfc;
+    width: auto;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
 }
 
 .btn-download:hover {
@@ -148,8 +166,38 @@ button:active {
     box-shadow: none;
 }
 
-pre {
+.result-section {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.result-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+}
+
+.banner-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.25rem 0.625rem;
+    background-color: rgba(124, 92, 252, 0.15);
+    color: #a78bfa;
+    border-radius: 999px;
+}
+
+pre {
     padding: 1.25rem;
     background-color: #0d0d18;
     border: 1px solid #2d2d44;
@@ -161,11 +209,199 @@ pre {
     color: #cbd5e1;
 }
 
-.result-label {
-    margin-top: 1.5rem;
-    font-weight: 600;
+.result-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    align-items: center;
+}
+
+.download-form {
+    margin: 0;
+}
+
+.btn-copy {
+    width: auto;
+    padding: 0.625rem 1.25rem;
     font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    background: transparent;
+    border: 1px solid #64748b;
     color: #94a3b8;
+    transition: all 0.2s;
+}
+
+.btn-copy:hover {
+    border-color: #7c5cfc;
+    color: #7c5cfc;
+    background: rgba(124, 92, 252, 0.05);
+}
+
+.btn-copy.copied {
+    border-color: #22c55e;
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.char-count {
+    display: block;
+    text-align: right;
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.375rem;
+    font-family: 'JetBrains Mono', monospace;
+    transition: color 0.2s;
+}
+
+.char-count.warning {
+    color: #f59e0b;
+}
+
+.char-count.exceeded {
+    color: #ef4444;
+}
+
+.loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.loading-overlay.active {
+    display: flex;
+}
+
+.loading-overlay p {
+    color: #94a3b8;
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #2d2d44;
+    border-top-color: #7c5cfc;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem;
+    color: #475569;
+    font-size: 0.75rem;
+    width: 100%;
+}
+
+.error-container {
+    text-align: center;
+    max-width: 480px;
+}
+
+.error-code {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    -webkit-text-fill-color: #ef4444;
+    background: none;
+    color: #ef4444;
+}
+
+.error-message {
+    color: #94a3b8;
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+}
+
+.btn-home {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, #7c5cfc, #6d4ff2);
+    color: #fff;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: opacity 0.2s, box-shadow 0.2s;
+}
+
+.btn-home:hover {
+    opacity: 0.92;
+    box-shadow: 0 4px 16px rgba(124, 92, 252, 0.3);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        margin: 1rem 0.5rem;
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+
+    h1 {
+        font-size: 1.375rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .radio-group {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .radio-group label {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8125rem;
+    }
+
+    .result-actions {
+        flex-direction: column;
+    }
+
+    .btn-copy,
+    .btn-download {
+        width: 100%;
+        text-align: center;
+    }
+
+    pre {
+        font-size: 0.6875rem;
+        padding: 0.875rem;
+    }
+
+    .error-code {
+        font-size: 2.25rem;
+    }
 }
