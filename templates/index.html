@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
     <title>Ascii Art Web</title>
 </head>
@@ -25,6 +28,11 @@
         {{ if .Result }}
         <div class="result-label">Result:</div>
         <pre>{{ .Result }}</pre>
+        <form method="post" action="/download" class="download-form">
+            <input type="hidden" name="text" value="{{ .Text }}">
+            <input type="hidden" name="banner" value="{{ .Banner }}">
+            <button type="submit" class="btn-download">Download as .txt</button>
+        </form>
         {{ end }}
     </div>
 </body>
